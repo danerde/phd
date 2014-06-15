@@ -20,6 +20,8 @@
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 
+#include "ThreadPool.h"
+
 #define foreach BOOST_FOREACH
 
 using namespace std;
@@ -61,6 +63,10 @@ public:
 	V2d(const cv::Vec2i& v):x(v[0]),y(v[1]){}
 	operator cv::Point2i()const{ return cv::Point2i(x_int(),y_int()); }
 	V2d(const cv::Point2i& v):x(v.x),y(v.y){}
+
+	bool in_range(double x1, double y1, double x2, double y2)const{
+		return x1<=x and x<=x2 and y1<=y and y<=y2;
+	}
 };
 typedef V2d Dimension;
 ostream& operator<<(ostream& o, const V2d& v){ return o<<v.str(); }
@@ -147,75 +153,33 @@ public:
 	double now()const{ return t/1000.0; }
 };
 
-class TH{
-public:
-	typedef boost::shared_ptr<TH> Ptr;
-	bool stop;
-	boost::mutex m;
-	boost::condition_variable v;
-	vector<Object::Ptr> obj;
-	Pose* tf;
-	Mat* page;
-	boost::mutex* gm;
-	int* gv;
-	boost::condition_variable* gs;
-	TH():stop(false),tf(0),page(0),gm(0),gv(0),gs(0){}
-//	TH(const TH& t):stop(t.stop),tf(t.tf),page(t.page),gm(t.gm),gv(t.gv){}
-	virtual ~TH(){}
-};
-
-void thread_draw(TH* th){
-	boost::mutex::scoped_lock l(th->m);
-	while(!th->stop){
-		th->v.wait(l);
-		if(th->stop) break;
-		foreach(Object::Ptr obj, th->obj){
-			obj->draw(*(th->tf), *(th->page));
-		}
-		{ boost::mutex::scoped_lock ll(*(th->gm)); (*(th->gv))--; if((*(th->gv))==0)th->gs->notify_one(); }
-	}
-}
-
-#define THREAD_NUMBER 1
 class World{
 public:
 	vector<Object::Ptr> objects;
 	Pose tf;
-#	if(THREAD_NUMBER==1)
-#	else
-	private:
-		boost::thread_group threads;
-		boost::mutex gm;
-		boost::condition_variable gs;
-		int gv;
-		std::vector<TH::Ptr> ths;
-#	endif
 public:
 	World(){
-#		if(THREAD_NUMBER==1)
-#		else
-			for(size_t i=0;i<THREAD_NUMBER;i++){
-				ths.push_back(TH::Ptr(new TH()));
-				ths[i]->gm = &gm;
-				ths[i]->gv = &gv;
-				ths[i]->tf = &tf;
-				ths[i]->gs = &gs;
-				threads.add_thread(new boost::thread(boost::bind(thread_draw, ths[i].get())));
-			}
-#		endif
 	}
 	~World(){
-#		if(THREAD_NUMBER==1)
-#		else
-			foreach(TH::Ptr t, ths){
-				t->stop = false;
-				t->v.notify_one();
-			}
-			threads.join_all();
-#		endif
 	}
 	void update(const Time& t){
-		foreach(Object::Ptr p, objects){
+
+		for(int i=0; i<(int)objects.size(); i++){
+			if(not objects[i]->pose.location.in_range(-200,-200,200,200)){
+				objects[i]->speed = V2d(0,0);
+				continue;
+			}
+			for(int j=i+1; j<(int)objects.size(); j++){
+				if( objects[i]->distance(*objects[j])<1 ){
+					objects[i]->speed = V2d(0,0);
+					objects[j]->speed = V2d(0,0);
+					break;
+				}
+			}
+		}
+
+		for(int i=0; i<(int)objects.size(); i++){
+			Object::Ptr p = objects[i];
 			V2d speed = (p->speed*t.now()).rotated(p->pose.heading);
 			p->pose.location = p->pose.location+speed;
 			p->pose.heading = p->pose.heading + p->speed.ang();
@@ -223,35 +187,9 @@ public:
 
 	}
 	void draw(Mat& page){
-#		if(THREAD_NUMBER==1)
 		foreach(Object::Ptr p, objects){
 			p->draw(tf, page);
 		}
-#		else
-		{
-			boost::mutex::scoped_lock l(gm);
-			int n = threads.size()-1;
-			int c = objects.size()/n;
-			int r = objects.size() - c*n;
-			int o = 0;
-			for(int i=0;i<n;i++){
-				ths[i]->obj.clear();
-				for(int j=0;j<c;j++){
-					ths[i]->obj.push_back(objects[o++]);
-					ths[i]->page = &page;
-				}
-			}
-			for(int j=0;j<r;j++){
-				ths[n]->obj.push_back(objects[o++]);
-				ths[n]->page = &page;
-			}
-			gv=threads.size();
-			foreach(TH::Ptr t, ths){
-				t->v.notify_one();
-			}
-			gs.wait(l);
-		}
-#		endif
 	}
 };
 
@@ -269,7 +207,6 @@ double frand(double s, double e){
 	return (rand()%1000/1000.0)*(e-s)+s;
 }
 
-
 int main() {
 
 	struct sigaction sigIntHandler;
@@ -282,13 +219,11 @@ int main() {
 	const int ImageW=1000,ImageH=1000;
 	cv::Mat m(ImageH,ImageW, CV_8UC3, cvScalar(255,255,255));
 	cv::Mat mr(ImageH,ImageW, CV_8UC3, cvScalar(255,255,255));
-	line(m,Point(0,0),Point(0,500),cvScalar(0,0,0));
-	line(m,Point(0,0),Point(500,0),cvScalar(0,0,0));
 	World w;
-	w.tf = Pose(V2d(ImageW/2,ImageH/2),0,2);
+	w.tf = Pose(V2d(ImageW/2,ImageH/2),0,1);
 
-	for(int i=0;i<1000;i++){
-		Object::Ptr robot = Object::Ptr(new Robot(Pose(V2d(0,0),0*d2r),10));
+	for(int i=0;i<5;i++){
+		Object::Ptr robot = Object::Ptr(new Robot(Pose(V2d(frand(-200,200),frand(-200,200)),0*d2r),10));
 		robot->speed = V2d::polar(1.0*d2r,15);
 		w.objects.push_back(robot);
 	}
@@ -300,12 +235,13 @@ int main() {
 
 		if(rand()%5==0){
 			foreach(Robot::Ptr robot, w.objects)
-				robot->speed = V2d::polar(frand(-5,5)*d2r,(rand()%20));
+				robot->speed = V2d::polar(frand(-5,5)*d2r,(rand()%50));
 		}
 
 		time = Time(duration);
 		w.update(time);
 		m.setTo(cv::Scalar(255,255,255));
+		rectangle(m,Point(w.tf.location.x-200,w.tf.location.y-200),Point(w.tf.location.x+200,w.tf.location.y+200),cvScalar(0,0,0));
 		w.draw(m);
 		cv::flip(m,mr,0);
 		cv::imshow("OK",mr);

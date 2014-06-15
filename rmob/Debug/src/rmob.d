@@ -48,7 +48,7 @@ src/rmob.d: ../src/rmob.cpp /opt/ros/hydro/include/opencv/cv.h \
  /opt/ros/hydro/include/opencv2/legacy/compat.hpp \
  /opt/ros/hydro/include/opencv2/core/internal.hpp \
  /opt/ros/hydro/include/opencv2/highgui/highgui.hpp \
- /opt/ros/hydro/include/opencv2/highgui/highgui_c.h
+ /opt/ros/hydro/include/opencv2/highgui/highgui_c.h ../src/ThreadPool.h
 
 /opt/ros/hydro/include/opencv/cv.h:
 
@@ -151,3 +151,5 @@ src/rmob.d: ../src/rmob.cpp /opt/ros/hydro/include/opencv/cv.h \
 /opt/ros/hydro/include/opencv2/highgui/highgui.hpp:
 
 /opt/ros/hydro/include/opencv2/highgui/highgui_c.h:
+
+../src/ThreadPool.h:
