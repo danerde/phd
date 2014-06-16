@@ -5,7 +5,7 @@
  *      Author: dan
  */
 
-#include "ThreadPool.h"
+#include <rmob/ThreadPool.h>
 
 ThreadPool::ThreadPool(int n) {
 	for( int i=0; i<n; i++){
