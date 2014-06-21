@@ -6,8 +6,10 @@
  */
 
 #include <rmob/Object.h>
+#include <rmob/World.h>
 
 Object::Object(Pose p, int ot, int pt):
+	id(cID()),
 	object_type(ot),
 	phisical_type(pt),pose(p),temporal_pt(pt)
 {}

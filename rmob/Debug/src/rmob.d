@@ -1,4 +1,7 @@
-src/rmob.d: ../src/rmob.cpp /opt/ros/hydro/include/opencv/cv.h \
+src/rmob.d: ../src/rmob.cpp /home/dan/workspace/rmob/includes/rmob/rmob.h \
+ /home/dan/workspace/rmob/includes/rmob/V2d.h \
+ /home/dan/workspace/rmob/includes/rmob/rmob_core.h \
+ /opt/ros/hydro/include/opencv/cv.h \
  /opt/ros/hydro/include/opencv2/core/core_c.h \
  /opt/ros/hydro/include/opencv2/core/types_c.h \
  /opt/ros/hydro/include/opencv2/core/core.hpp \
@@ -48,7 +51,19 @@ src/rmob.d: ../src/rmob.cpp /opt/ros/hydro/include/opencv/cv.h \
  /opt/ros/hydro/include/opencv2/legacy/compat.hpp \
  /opt/ros/hydro/include/opencv2/core/internal.hpp \
  /opt/ros/hydro/include/opencv2/highgui/highgui.hpp \
- /opt/ros/hydro/include/opencv2/highgui/highgui_c.h ../src/ThreadPool.h
+ /opt/ros/hydro/include/opencv2/highgui/highgui_c.h \
+ /home/dan/workspace/rmob/includes/rmob/Pose.h \
+ /home/dan/workspace/rmob/includes/rmob/Object.h \
+ /home/dan/workspace/rmob/includes/rmob/Robot.h \
+ /home/dan/workspace/rmob/includes/rmob/Pack.h \
+ /home/dan/workspace/rmob/includes/rmob/World.h \
+ /home/dan/workspace/rmob/includes/rmob/Time.h
+
+/home/dan/workspace/rmob/includes/rmob/rmob.h:
+
+/home/dan/workspace/rmob/includes/rmob/V2d.h:
+
+/home/dan/workspace/rmob/includes/rmob/rmob_core.h:
 
 /opt/ros/hydro/include/opencv/cv.h:
 
@@ -152,4 +167,14 @@ src/rmob.d: ../src/rmob.cpp /opt/ros/hydro/include/opencv/cv.h \
 
 /opt/ros/hydro/include/opencv2/highgui/highgui_c.h:
 
-../src/ThreadPool.h:
+/home/dan/workspace/rmob/includes/rmob/Pose.h:
+
+/home/dan/workspace/rmob/includes/rmob/Object.h:
+
+/home/dan/workspace/rmob/includes/rmob/Robot.h:
+
+/home/dan/workspace/rmob/includes/rmob/Pack.h:
+
+/home/dan/workspace/rmob/includes/rmob/World.h:
+
+/home/dan/workspace/rmob/includes/rmob/Time.h:

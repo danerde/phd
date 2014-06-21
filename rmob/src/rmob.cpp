@@ -1,12 +1,17 @@
 
 #include <rmob/rmob.h>
 
-
-
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+
+const int NUMBER_OF_ROBOTS = 0;
+const int NUMBER_OF_PACKS = 10;
+
+const int ROBOT_SIZE = 10;
+const int PACK_SIZE = 30;
+
 
 void my_handler(int s){
    printf("Caught signal %d\n",s);
@@ -32,20 +37,40 @@ int main() {
 	World w;
 	w.tf = Pose(V2d(ImageW/2,ImageH/2),0,1);
 
-	for(int i=0;i<5;i++){
-		Object::Ptr robot = Object::Ptr(new Robot(Pose(V2d(frand(-200,200),frand(-200,200)),0*d2r),10));
+	for(int i=0;i<NUMBER_OF_ROBOTS;i++){
+		Object::Ptr robot = Object::Ptr(new Robot(Pose(V2d(frand(-200,200),frand(-200,200)),0*d2r),ROBOT_SIZE));
 		robot->speed = V2d::polar(1.0*d2r,15);
 		w.objects.push_back(robot);
 	}
+
+//	for(int i=0;i<NUMBER_OF_PACKS;i++){
+//		Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(frand(-200,200),frand(-200,200)),0*d2r),PACK_SIZE));
+//		//pack->speed = V2d::polar(1.0*d2r,15);
+//		w.objects.push_back(pack);
+//	}
+
+	{Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(-30,0),0),PACK_SIZE));
+	pack->speed = V2d::polar(0,15);
+	w.objects.push_back(pack);}
+	{Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(+31,0),0),PACK_SIZE));
+	pack->speed = V2d::polar(0,15);
+	w.objects.push_back(pack);}
+
 
 	int k=0;
 	Time time;
 	int duration = 30;
 	while(k!=1310819 and k!=1048603){
+		//waitKey();
 
-		if(rand()%5==0){
-			foreach(Robot::Ptr robot, w.objects)
-				robot->speed = V2d::polar(frand(-5,5)*d2r,(rand()%50));
+//		if(rand()%5==0){
+//			foreach(Object::Ptr object, w.objects){
+//				object->speed = V2d::polar(frand(-5,5)*d2r,(rand()%150+50));
+//			}
+//		}
+
+		foreach(Object::Ptr object, w.objects){
+			object->think(w);
 		}
 
 		time = Time(duration);

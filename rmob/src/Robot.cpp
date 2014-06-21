@@ -6,6 +6,7 @@
  */
 
 #include <rmob/Robot.h>
+#include <rmob/World.h>
 
 Robot::Robot(Pose p,double size):CicleObject(p,size, 10){
 
@@ -21,3 +22,9 @@ void Robot::draw(const Pose& tf, Mat& m)const{
 	circle(m ,l, s, cvScalar(155, 155, 0),3);
 	line(m, l, l+V2d::polar(r,s), cvScalar(155, 155, 0),3);
 }
+
+
+void Robot::think(const World& wm){
+	const vector<Object::Ptr>& objects = wm.objects;
+}
+

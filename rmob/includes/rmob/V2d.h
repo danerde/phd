@@ -62,7 +62,7 @@ inline
 ostream& operator<<(ostream& o, const V2d& v){ return o<<v.str(); }
 
 inline
-double angle(double a){ return V2d(a, 1).ang(); }
+double angle(double a){ return V2d::polar(a, 1).ang(); }
 
 inline
 double angle_2PI(double _a){ double a = angle(_a); if(a>=0)return a; return (M_PI+a)+M_PI; }

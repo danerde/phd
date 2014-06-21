@@ -16,6 +16,7 @@ public:
 	virtual ~Robot();
 
 	virtual void draw(const Pose& tf, Mat& m)const;
+	virtual void think(const World& wm);
 };
 
 #endif /* ROBOT_H_ */

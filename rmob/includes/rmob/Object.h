@@ -9,12 +9,17 @@
 #define OBJECT_H_
 
 #include "Pose.h"
+//#include "World.h"
+
+class World;
 
 class Object{
 public:
 	typedef boost::shared_ptr<Object> Ptr;
+	static int cID(){ static int c=0;return c++; }
 
 
+	int id;
 	int object_type;
 	int phisical_type;
 	Pose pose;
@@ -28,6 +33,7 @@ public:
 
 	virtual double distance(const Object& p)const=0;
 	virtual void draw(const Pose& tf, Mat& m)const=0;
+	virtual void think(const World& wm)=0;
 };
 
 /*** DEPRICATED ***/

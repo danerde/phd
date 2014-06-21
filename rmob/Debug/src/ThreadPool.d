@@ -1,3 +1,4 @@
-src/ThreadPool.d: ../src/ThreadPool.cpp ../src/ThreadPool.h
+src/ThreadPool.d: ../src/ThreadPool.cpp \
+ /home/dan/workspace/rmob/includes/rmob/ThreadPool.h
 
-../src/ThreadPool.h:
+/home/dan/workspace/rmob/includes/rmob/ThreadPool.h:
