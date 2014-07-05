@@ -6,11 +6,11 @@
 #include <stdio.h>
 #include <unistd.h>
 
-const int NUMBER_OF_ROBOTS = 0;
-const int NUMBER_OF_PACKS = 10;
+const int NUMBER_OF_ROBOTS = 200;
+const int NUMBER_OF_PACKS = 200;
 
 const int ROBOT_SIZE = 10;
-const int PACK_SIZE = 30;
+const int PACK_SIZE = 5;
 
 
 void my_handler(int s){
@@ -35,26 +35,30 @@ int main() {
 	cv::Mat m(ImageH,ImageW, CV_8UC3, cvScalar(255,255,255));
 	cv::Mat mr(ImageH,ImageW, CV_8UC3, cvScalar(255,255,255));
 	World w;
-	w.tf = Pose(V2d(ImageW/2,ImageH/2),0,1);
+	w.tf = Pose(V2d(ImageW/2,ImageH/2),0,0.5);
+	w.borderL = -700;
+	w.borderT = 700;
+	w.borderR = 700;
+	w.borderB = -700;
 
 	for(int i=0;i<NUMBER_OF_ROBOTS;i++){
-		Object::Ptr robot = Object::Ptr(new Robot(Pose(V2d(frand(-200,200),frand(-200,200)),0*d2r),ROBOT_SIZE));
-		robot->speed = V2d::polar(1.0*d2r,15);
+		Object::Ptr robot = Object::Ptr(new Robot(Pose(V2d(frand(w.borderL,w.borderR),frand(w.borderB,w.borderT)),0*d2r),ROBOT_SIZE));
+		robot->speed = V2d::polar(1.0*d2r,115);
 		w.objects.push_back(robot);
 	}
 
-//	for(int i=0;i<NUMBER_OF_PACKS;i++){
-//		Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(frand(-200,200),frand(-200,200)),0*d2r),PACK_SIZE));
-//		//pack->speed = V2d::polar(1.0*d2r,15);
-//		w.objects.push_back(pack);
-//	}
+	for(int i=0;i<NUMBER_OF_PACKS;i++){
+		Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(frand(w.borderL,w.borderR),frand(w.borderB,w.borderT)),0*d2r),PACK_SIZE));
+		pack->speed = V2d::polar(1.0*d2r,400);
+		w.objects.push_back(pack);
+	}
 
-	{Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(-30,0),0),PACK_SIZE));
-	pack->speed = V2d::polar(0,15);
-	w.objects.push_back(pack);}
-	{Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(+31,0),0),PACK_SIZE));
-	pack->speed = V2d::polar(0,15);
-	w.objects.push_back(pack);}
+//	{Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(0,0),70*d2r),PACK_SIZE));
+//	pack->speed = V2d::polar(0,385);
+//	w.objects.push_back(pack);}
+//	{Object::Ptr pack = Object::Ptr(new Pack(Pose(V2d(-51,2),0),PACK_SIZE));
+//	pack->speed = V2d::polar(0,385);
+//	w.objects.push_back(pack);}
 
 
 	int k=0;
@@ -70,13 +74,14 @@ int main() {
 //		}
 
 		foreach(Object::Ptr object, w.objects){
-			object->think(w);
+			if(object->isPickedup) continue;
+			object->action(w);
 		}
 
 		time = Time(duration);
 		w.update(time);
 		m.setTo(cv::Scalar(255,255,255));
-		rectangle(m,Point(w.tf.location.x-200,w.tf.location.y-200),Point(w.tf.location.x+200,w.tf.location.y+200),cvScalar(0,0,0));
+		rectangle(m,Point(w.tf.location.x+w.borderL*w.tf.scale,w.tf.location.y+w.borderT*w.tf.scale),Point(w.tf.location.x+w.borderR*w.tf.scale,w.tf.location.y+w.borderB*w.tf.scale),cvScalar(0,0,0));
 		w.draw(m);
 		cv::flip(m,mr,0);
 		cv::imshow("OK",mr);

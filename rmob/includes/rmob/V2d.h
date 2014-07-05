@@ -56,6 +56,9 @@ public:
 	bool in_range(double x1, double y1, double x2, double y2)const{
 		return x1<=x and x<=x2 and y1<=y and y<=y2;
 	}
+
+	V2d setAng(double a)const{ return polar(a,len()); }
+	V2d normal()const{ return polar(ang(),1); }
 };
 typedef V2d Dimension;
 inline

@@ -11,12 +11,21 @@
 #include "Object.h"
 
 class Robot: public CicleObject{
+
+public:
+	typedef cv::Scalar COLOR;
+	COLOR c;
+	vector<Object::Ptr> picked;
+
 public:
 	Robot(Pose p,double size);
 	virtual ~Robot();
 
 	virtual void draw(const Pose& tf, Mat& m)const;
+	virtual void action(const World& wm);
 	virtual void think(const World& wm);
+
+	static boost::shared_ptr<Robot> getPtr(Ptr p){ return boost::shared_static_cast<Robot>(p); }
 };
 
 #endif /* ROBOT_H_ */

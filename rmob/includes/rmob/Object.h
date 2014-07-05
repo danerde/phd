@@ -25,6 +25,9 @@ public:
 	Pose pose;
 	int temporal_pt;
 	V2d speed;
+	V2d speed_impuls;
+	bool isPickedup;
+	double size;
 
 
 	Object(Pose p, int ot, int pt);
@@ -33,7 +36,8 @@ public:
 
 	virtual double distance(const Object& p)const=0;
 	virtual void draw(const Pose& tf, Mat& m)const=0;
-	virtual void think(const World& wm)=0;
+	virtual void action(const World& wm)=0;
+
 };
 
 /*** DEPRICATED ***/
@@ -46,7 +50,6 @@ public:
 
 class CicleObject:public Object{
 public:
-	double size;
 	CicleObject(Pose p, double s, int pt);
 
 

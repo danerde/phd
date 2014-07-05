@@ -11,12 +11,12 @@
 Object::Object(Pose p, int ot, int pt):
 	id(cID()),
 	object_type(ot),
-	phisical_type(pt),pose(p),temporal_pt(pt)
+	phisical_type(pt),pose(p),temporal_pt(pt),isPickedup(false)
 {}
 
 Object::~Object() {  }
 
-CicleObject::CicleObject(Pose p, double s, int pt):Object(p, 2, pt),size(s){}
+CicleObject::CicleObject(Pose p, double s, int pt):Object(p, 2, pt){size=(s);}
 
 double CicleObject::distance(const Object& p)const{
 	if(p.object_type == object_type){

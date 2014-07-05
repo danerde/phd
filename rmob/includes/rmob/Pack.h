@@ -15,11 +15,14 @@ class Pack: public CicleObject{
 public:
 	typedef cv::Scalar COLOR;
 	COLOR c;
+	bool used;
 
 public:
 	Pack(Pose p,double size);
 	virtual void draw(const Pose& tf, Mat& m)const;
-	virtual void think(const World& wm);
+	virtual void action(const World& wm);
+
+	static boost::shared_ptr<Pack> getPtr(Ptr p){ return boost::shared_static_cast<Pack>(p); }
 };
 
 #endif /* PACK_H_ */
