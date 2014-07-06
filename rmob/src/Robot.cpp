@@ -23,21 +23,19 @@ Robot::Robot(Pose p,double size):CicleObject(p,size, 10){
 Robot::~Robot() {
 }
 
-void Robot::draw_init(){
-	dr_pose= pose;
-	dr_speed= speed;
-	dr_size=size;
-	dr_c=c;
+void Robot::save_state(){
+	Object::save_state();
+	_c=c;
 }
 
 void Robot::draw(const Pose& tf, Mat& m)const{
-	V2d l = (dr_pose.location)*tf.scale+tf.location;
-	double r = dr_pose.heading+tf.heading;
-	double rr = dr_speed.ang()+tf.heading;
-	double s = dr_size*tf.scale;
-	double ss = dr_speed.len()*tf.scale;
-	circle(m ,l, s, dr_c,3);
-	line(m, l, l+V2d::polar(r,s), dr_c,3);
+	V2d l = (_pose.location)*tf.scale+tf.location;
+	double r = _pose.heading+tf.heading;
+	double rr = _speed.ang()+tf.heading;
+	double s = _size*tf.scale;
+	double ss = _speed.len()*tf.scale;
+	circle(m ,l, s, _c,3);
+	line(m, l, l+V2d::polar(r,s), _c,3);
 	line(m, l, l+V2d::polar(rr+r,ss), GREEN,1);
 }
 
@@ -64,21 +62,21 @@ void Robot::think(const World& wm){
 
 	foreach(Object::Ptr obj, wm.objects){
 		if(obj->phisical_type != 5)continue;
-		if(obj->isPickedup)continue;
-		if(Pack::getPtr(obj)->used)continue;
-		V2d to_obj = (obj->pose.location - pose.location).rotated(-pose.heading);
+		if(obj->_isPickedup)continue;
+		if(Pack::getPtr(obj)->_used)continue;
+		V2d to_obj = (obj->_pose.location - pose.location).rotated(-pose.heading);
 		if(to_obj.len() < (size+obj->size)*1.5)
 			if(fabs(to_obj.ang())<20*d2r){
 				picked.push_back(obj);
-				obj->isPickedup=true;
-				Pack::getPtr(obj)->used=true;
-				obj->speed = V2d();
+				obj->_isPickedup=true;
+				Pack::getPtr(obj)->used=true;//access
+				obj->speed = V2d();//access
 		}
 	}
 
 	if( pose.location.len() < 30 ){
 		foreach(Object::Ptr obj, picked){
-			obj->isPickedup=false;
+			obj->isPickedup=false;//access
 		}
 		picked.clear();
 	}

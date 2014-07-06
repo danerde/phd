@@ -30,12 +30,17 @@ public:
 	double size;
 
 
+	Pose _pose;
+	V2d _speed;
+	double _size;
+	bool _isPickedup;
+
 	Object(Pose p, int ot, int pt);
 	virtual ~Object();
 
 
 	virtual double distance(const Object& p)const=0;
-	virtual void draw_init()=0;
+	virtual void save_state();
 	virtual void draw(const Pose& tf, Mat& m)const=0;
 	virtual void action(const World& wm)=0;
 

@@ -13,11 +13,9 @@
 class Pack: public CicleObject{
 public:
 	typedef cv::Scalar COLOR;
-private:
-	Pose dr_pose;
-	V2d dr_speed;
-	double dr_size;
-	COLOR dr_c;
+public:
+	COLOR _c;
+	bool _used;
 
 public:
 	COLOR c;
@@ -25,7 +23,7 @@ public:
 
 public:
 	Pack(Pose p,double size);
-	virtual void draw_init();
+	virtual void save_state(){ Object::save_state(); _c=c; _used=used;}
 	virtual void draw(const Pose& tf, Mat& m)const;
 	virtual void action(const World& wm);
 

@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-const int NUMBER_OF_ROBOTS = 1000;
-const int NUMBER_OF_PACKS = 0;
+const int NUMBER_OF_ROBOTS = 10;
+const int NUMBER_OF_PACKS = 1000;
 
 const int ROBOT_SIZE = 10;
 const int PACK_SIZE = 5;
@@ -66,6 +66,8 @@ int main() {
 	int duration = 30;
 	while(k!=1310819 and k!=1048603){
 		//waitKey();
+
+		w.save_state();
 
 		m.setTo(cv::Scalar(255,255,255));
 		rectangle(m,Point(w.tf.location.x+w.borderL*w.tf.scale,w.tf.location.y+w.borderT*w.tf.scale),Point(w.tf.location.x+w.borderR*w.tf.scale,w.tf.location.y+w.borderB*w.tf.scale),cvScalar(0,0,0));

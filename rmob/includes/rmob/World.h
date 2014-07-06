@@ -13,6 +13,7 @@
 #include "Pose.h"
 #include "boost/thread.hpp"
 #include "boost/thread/mutex.hpp"
+#include "Barier.h"
 
 class World{
 public:
@@ -27,6 +28,9 @@ public:
 public:
 	World();
 	~World();
+
+	void save_state();
+
 	void update(const Time& t);
 
 	double getBorderL()const{ return tf.location.x+borderL; }
@@ -42,9 +46,10 @@ private:
 	boost::mutex mtx;
 	boost::condition_variable update_run;
 	Time update_time;
+	Barier barier;
 
-	void update_thread();
-	void update_proccess();
+	void update_thread(int n, int c);
+	void update_proccess(size_t from, size_t to);
 };
 
 #endif /* WORLD_H_ */

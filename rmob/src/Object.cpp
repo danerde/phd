@@ -16,6 +16,14 @@ Object::Object(Pose p, int ot, int pt):
 
 Object::~Object() {  }
 
+void Object::save_state(){
+	_pose= pose;
+	_speed= speed;
+	_size=size;
+	_isPickedup=isPickedup;
+}
+
+
 CicleObject::CicleObject(Pose p, double s, int pt):Object(p, 2, pt){size=(s);}
 
 double CicleObject::distance(const Object& p)const{
