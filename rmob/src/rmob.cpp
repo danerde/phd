@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-const int NUMBER_OF_ROBOTS = 200;
-const int NUMBER_OF_PACKS = 200;
+const int NUMBER_OF_ROBOTS = 1000;
+const int NUMBER_OF_PACKS = 0;
 
 const int ROBOT_SIZE = 10;
 const int PACK_SIZE = 5;
@@ -67,22 +67,13 @@ int main() {
 	while(k!=1310819 and k!=1048603){
 		//waitKey();
 
-//		if(rand()%5==0){
-//			foreach(Object::Ptr object, w.objects){
-//				object->speed = V2d::polar(frand(-5,5)*d2r,(rand()%150+50));
-//			}
-//		}
-
-		foreach(Object::Ptr object, w.objects){
-			if(object->isPickedup) continue;
-			object->action(w);
-		}
-
-		time = Time(duration);
-		w.update(time);
 		m.setTo(cv::Scalar(255,255,255));
 		rectangle(m,Point(w.tf.location.x+w.borderL*w.tf.scale,w.tf.location.y+w.borderT*w.tf.scale),Point(w.tf.location.x+w.borderR*w.tf.scale,w.tf.location.y+w.borderB*w.tf.scale),cvScalar(0,0,0));
 		w.draw(m);
+
+		time = Time(duration);
+		w.update(time);
+
 		cv::flip(m,mr,0);
 		cv::imshow("OK",mr);
 		k = cv::waitKey(duration);

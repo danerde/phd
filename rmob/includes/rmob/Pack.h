@@ -11,14 +11,21 @@
 #include "Object.h"
 
 class Pack: public CicleObject{
-
 public:
 	typedef cv::Scalar COLOR;
+private:
+	Pose dr_pose;
+	V2d dr_speed;
+	double dr_size;
+	COLOR dr_c;
+
+public:
 	COLOR c;
 	bool used;
 
 public:
 	Pack(Pose p,double size);
+	virtual void draw_init();
 	virtual void draw(const Pose& tf, Mat& m)const;
 	virtual void action(const World& wm);
 

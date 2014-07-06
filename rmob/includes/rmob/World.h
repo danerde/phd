@@ -11,7 +11,8 @@
 #include "Time.h"
 #include "Object.h"
 #include "Pose.h"
-
+#include "boost/thread.hpp"
+#include "boost/thread/mutex.hpp"
 
 class World{
 public:
@@ -22,7 +23,6 @@ public:
 	int borderR;
 	int borderT;
 	int borderB;
-
 
 public:
 	World();
@@ -35,6 +35,16 @@ public:
 	double getBorderB()const{ return tf.location.y+borderB; }
 
 	void draw(Mat& page);
+
+
+private:
+	boost::thread_group threads;
+	boost::mutex mtx;
+	boost::condition_variable update_run;
+	Time update_time;
+
+	void update_thread();
+	void update_proccess();
 };
 
 #endif /* WORLD_H_ */

@@ -35,6 +35,7 @@ public:
 
 
 	virtual double distance(const Object& p)const=0;
+	virtual void draw_init()=0;
 	virtual void draw(const Pose& tf, Mat& m)const=0;
 	virtual void action(const World& wm)=0;
 

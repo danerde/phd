@@ -23,14 +23,21 @@ Robot::Robot(Pose p,double size):CicleObject(p,size, 10){
 Robot::~Robot() {
 }
 
+void Robot::draw_init(){
+	dr_pose= pose;
+	dr_speed= speed;
+	dr_size=size;
+	dr_c=c;
+}
+
 void Robot::draw(const Pose& tf, Mat& m)const{
-	V2d l = (pose.location)*tf.scale+tf.location;
-	double r = pose.heading+tf.heading;
-	double rr = speed.ang()+tf.heading;
-	double s = size*tf.scale;
-	double ss = speed.len()*tf.scale;
-	circle(m ,l, s, c,3);
-	line(m, l, l+V2d::polar(r,s), c,3);
+	V2d l = (dr_pose.location)*tf.scale+tf.location;
+	double r = dr_pose.heading+tf.heading;
+	double rr = dr_speed.ang()+tf.heading;
+	double s = dr_size*tf.scale;
+	double ss = dr_speed.len()*tf.scale;
+	circle(m ,l, s, dr_c,3);
+	line(m, l, l+V2d::polar(r,s), dr_c,3);
 	line(m, l, l+V2d::polar(rr+r,ss), GREEN,1);
 }
 
@@ -91,8 +98,8 @@ void Robot::action(const World& wm){
 	foreach(Object::Ptr obj, objects){
 		if(obj.get()==this) continue;
 		if(obj->phisical_type<phisical_type)continue;
-		if( (pose.location - obj->pose.location).len() < 5+size+ boost::shared_static_cast<CicleObject>(obj)->size ){
-			V2d dir = pose.location - obj->pose.location;
+		V2d dir = pose.location - obj->pose.location;
+		if( dir.len() < 5+(size+obj->size) ){
 			double a = dir.ang()-heading.ang();
 			a = angle(a);
 			if( fabs(a) < M_PI_2 ) continue;
@@ -116,17 +123,17 @@ void Robot::action(const World& wm){
 //			double ref = M_PI - pose.heading;
 //			pose.heading = angle(ref);
 			speed = speed.normal()*0.1;
-		}
+		}else
 		if(dr < dl and dr < dt and dr < db and (M_PI_2>fabs(pose.heading))){
 //			double ref = M_PI - pose.heading;
 //			pose.heading = angle(ref);
 			speed = speed.normal()*0.1;
-		}
+		}else
 		if(dt < dr and dt < dl and dt < db and pose.heading>0){
 //			double ref = ((M_PI - (pose.heading-M_PI_2))+M_PI_2);
 //			pose.heading = angle(ref);
 			speed = speed.normal()*0.1;
-		}
+		}else
 		if(db < dr and db < dt and db < dl and pose.heading<0){
 //			double ref = ((M_PI - (pose.heading-M_PI_2))+M_PI_2);
 //			pose.heading = angle(ref);

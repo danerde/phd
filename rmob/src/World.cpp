@@ -6,37 +6,46 @@
  */
 
 #include <rmob/World.h>
+#include <rmob/Object.h>
 
 World::World() {
+	borderL=-1000;
+	borderR=1000;
+	borderT=1000;
+	borderB=-1000;
 
+	threads.add_thread(new boost::thread(boost::bind(&World::update_thread,this)));
 }
 
 World::~World() {
+	threads.interrupt_all();
+	update_run.notify_all();
 }
 
-void World::update(const Time& t){
 
-//	for(int i=0; i<(int)objects.size(); i++){
-//		if(not objects[i]->pose.location.in_range(borderL,borderT,borderR,borderB)){
-//			objects[i]->speed = V2d(0,0);
-//			cout<<" stop A"<<endl;
-//			V2d dir = (objects[i]->pose.location-V2d(0,0));
-//			objects[i]->pose.location = objects[i]->pose.location - V2d::polar(dir.ang(),1);
-//			continue;
-//		}
-//		for(int j=i+1; j<(int)objects.size(); j++){
-//			if( objects[i]->distance(*objects[j])<1 ){
-//				objects[i]->speed = V2d(0,0);
-//				cout<<" stop B"<<endl;
-//				objects[j]->speed = V2d(0,0);
-//				cout<<" stop C"<<endl;
-//				V2d dir = (objects[i]->pose.location-objects[j]->pose.location);
-//				objects[i]->pose.location = objects[i]->pose.location + V2d::polar(dir.ang(),1);
-//				objects[j]->pose.location = objects[j]->pose.location - V2d::polar(dir.ang(),1);
-//				break;
-//			}
-//		}
-//	}
+
+
+void World::update(const Time& t){
+	boost::mutex::scoped_lock l(mtx);
+	update_time = t;
+	//update_proccess();
+	update_run.notify_one();
+}
+void World::update_thread(){
+	boost::mutex::scoped_lock l(mtx);
+	while(not boost::this_thread::interruption_requested()){
+		update_run.wait(l);
+		if(boost::this_thread::interruption_requested()) break;
+		update_proccess();
+	}
+}
+void World::update_proccess(){
+	const Time& t = update_time;
+	const World& self = *this;
+	foreach(Object::Ptr obj, objects){
+		if(obj->isPickedup) continue;
+		obj->action(self);
+	}
 
 	for(int i=0; i<(int)objects.size(); i++){
 		Object::Ptr p = objects[i];
@@ -51,6 +60,12 @@ void World::update(const Time& t){
 
 
 void World::draw(Mat& page){
+	{boost::mutex::scoped_lock l(mtx);
+		foreach(Object::Ptr p, objects){
+			p->draw_init();
+		}
+	}
+
 	foreach(Object::Ptr p, objects){
 		p->draw(tf, page);
 	}
