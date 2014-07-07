@@ -41,7 +41,7 @@ CPP_DEPS += \
 src/%.o: ../src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -I/opt/ros/hydro/include/opencv -I"/home/dan/workspace/rmob/includes" -I/opt/ros/hydro/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -DLOW_DRAW -DTHREAD_COUNT=1 -I/opt/ros/hydro/include/opencv -I"/home/dan/workspace/rmob/includes" -I/opt/ros/hydro/include -O3 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

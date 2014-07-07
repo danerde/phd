@@ -5,12 +5,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "sys_time.h"
 
-const int NUMBER_OF_ROBOTS = 10;
-const int NUMBER_OF_PACKS = 1000;
+const int NUMBER_OF_ROBOTS = 1000;
+const int NUMBER_OF_PACKS = 500;
 
 const int ROBOT_SIZE = 10;
 const int PACK_SIZE = 5;
+
+//#define VISUAL
 
 
 void my_handler(int s){
@@ -63,22 +66,32 @@ int main() {
 
 	int k=0;
 	Time time;
-	int duration = 30;
+	int duration = 15;
+	long iterations=0;
+	double last = get_sec();
 	while(k!=1310819 and k!=1048603){
+		iterations++;
 		//waitKey();
 
 		w.save_state();
 
+		time = Time(duration);
+		w.update(time);
+
+#ifdef VISUAL
 		m.setTo(cv::Scalar(255,255,255));
 		rectangle(m,Point(w.tf.location.x+w.borderL*w.tf.scale,w.tf.location.y+w.borderT*w.tf.scale),Point(w.tf.location.x+w.borderR*w.tf.scale,w.tf.location.y+w.borderB*w.tf.scale),cvScalar(0,0,0));
 		w.draw(m);
 
-		time = Time(duration);
-		w.update(time);
-
 		cv::flip(m,mr,0);
 		cv::imshow("OK",mr);
+#endif
 		k = cv::waitKey(duration);
+		if(iterations%20==0){
+			double now = get_sec();
+			cout<<"\r"<<iterations<<":"<<1.0/((now-last)/20.0)<<"Hz               "; cout.flush();
+			last = now;
+		}
 		if(k>0) cout<<"pressed: "<<k<<endl;
 	}
 

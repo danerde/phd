@@ -17,23 +17,28 @@ const Pack::COLOR GREEN= cvScalar(0, 255, 0);
 
 Pack::Pack(Pose p,double size):CicleObject(p,size, 5){
 	c = REG;
-	used = false;
+	_used = used = false;
 
 }
 
 
 void Pack::draw(const Pose& tf, Mat& m)const{
 	V2d l = (_pose.location)*tf.scale+tf.location;
+	double s = _size*tf.scale;
+#ifndef LOW_DRAW
 	double r = _pose.heading+tf.heading;
 	double rr = _speed.ang()+tf.heading;
-	double s = _size*tf.scale;
 	double ss = _speed.len()*tf.scale;
 	circle(m ,l, s, _c,2);
 	line(m, l, l+V2d::polar(r,s), _c,2);
 	line(m, l, l+V2d::polar(rr+r,ss), GREEN,1);
+#else
+	circle(m ,l, s, _c,1);
+#endif
 }
 
 void Pack::action(const World& wm){
+	if(isPickedup) return;
 	const vector<Object::Ptr>& objects = wm.objects;
 	c = REG;
 	V2d heading = V2d::polar(this->pose.heading,1);

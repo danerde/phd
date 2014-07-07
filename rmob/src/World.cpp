@@ -8,32 +8,46 @@
 #include <rmob/World.h>
 #include <rmob/Object.h>
 
+#if THREAD_COUNT==1
+#else
+#	define MTHREADING
+#endif
+
 World::World() {
 	borderL=-1000;
 	borderR=1000;
 	borderT=1000;
 	borderB=-1000;
 
-	int count=5;
+#ifdef MTHREADING
+	int count=THREAD_COUNT;
 	for(int i=0;i<count;i++)
-		threads.add_thread(new boost::thread(boost::bind(&World::update_thread,this, 1, count)));
+		threads.add_thread(new boost::thread(boost::bind(&World::update_thread,this, i, count)));
+#endif
 }
 
 World::~World() {
+#ifdef MTHREADING
 	threads.interrupt_all();
 	update_run.notify_all();
+#endif
 }
 
 
 
 
 void World::update(const Time& t){
+#ifdef MTHREADING
 	boost::mutex::scoped_lock l(mtx);
+#endif
 	update_time = t;
-	//update_proccess();
-	barier.set(5);
+#ifndef MTHREADING
+	update_proccess(0,objects.size());
+#else
+	barier.set(THREAD_COUNT);
 	update_run.notify_all();
 	barier.wait(l);
+#endif
 }
 void World::update_thread(int n, int count){
 	boost::mutex::scoped_lock l(mtx);
@@ -71,7 +85,9 @@ void World::update_proccess(size_t from, size_t to){
 }
 
 void World::save_state(){
+#ifdef MTHREADING
 	boost::mutex::scoped_lock l(mtx);
+#endif
 	foreach(Object::Ptr p, objects){
 		p->save_state();
 	}

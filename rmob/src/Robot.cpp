@@ -30,13 +30,17 @@ void Robot::save_state(){
 
 void Robot::draw(const Pose& tf, Mat& m)const{
 	V2d l = (_pose.location)*tf.scale+tf.location;
+	double s = _size*tf.scale;
+#ifndef	LOW_DRAW
 	double r = _pose.heading+tf.heading;
 	double rr = _speed.ang()+tf.heading;
-	double s = _size*tf.scale;
 	double ss = _speed.len()*tf.scale;
 	circle(m ,l, s, _c,3);
 	line(m, l, l+V2d::polar(r,s), _c,3);
 	line(m, l, l+V2d::polar(rr+r,ss), GREEN,1);
+#else
+	circle(m ,l, s, _c,1);
+#endif
 }
 
 
@@ -65,13 +69,13 @@ void Robot::think(const World& wm){
 		if(obj->_isPickedup)continue;
 		if(Pack::getPtr(obj)->_used)continue;
 		V2d to_obj = (obj->_pose.location - pose.location).rotated(-pose.heading);
-		if(to_obj.len() < (size+obj->size)*1.5)
-			if(fabs(to_obj.ang())<20*d2r){
-				picked.push_back(obj);
-				obj->_isPickedup=true;
-				Pack::getPtr(obj)->used=true;//access
-				obj->speed = V2d();//access
-		}
+		if(to_obj.len() > (size+obj->size)*1.5)continue;
+		if(fabs(to_obj.ang())>20*d2r)continue;
+
+		picked.push_back(obj);
+		obj->_isPickedup=true;
+		Pack::getPtr(obj)->used=true;//access
+		obj->speed = V2d();//access
 	}
 
 	if( pose.location.len() < 30 ){
@@ -93,21 +97,23 @@ void Robot::action(const World& wm){
 	const vector<Object::Ptr>& objects = wm.objects;
 	c = REG;
 	V2d heading = V2d::polar(this->pose.heading,1);
+
 	foreach(Object::Ptr obj, objects){
 		if(obj.get()==this) continue;
 		if(obj->phisical_type<phisical_type)continue;
 		V2d dir = pose.location - obj->pose.location;
-		if( dir.len() < 5+(size+obj->size) ){
-			double a = dir.ang()-heading.ang();
-			a = angle(a);
-			if( fabs(a) < M_PI_2 ) continue;
+		if( dir.len() > 5+(size+obj->size) ) continue;
+
+		double a = dir.ang()-heading.ang();
+		a = angle(a);
+		if( fabs(a) < M_PI_2 ) continue;
 //			dir = dir*-1;
 //			dir = dir.rotated(a);
 //			pose.heading = dir.ang();
-			c = RED;
-			//speed=speed.normal()*0.1;
-		}
+		c = RED;
+		//speed=speed.normal()*0.1;
 	}
+
 	double borderL = wm.borderL;
 	double borderR = wm.borderR;
 	double borderT = wm.borderT;
